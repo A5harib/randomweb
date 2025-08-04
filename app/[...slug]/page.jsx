@@ -69,15 +69,23 @@ export default function PlaygroundPage() {
     //     Don't Include functional JavaScript, and do not include <html>, <head>, or <body> tags.
     //     Return only the HTML, no explanations.`;
     const htmlPrompt = `
-Create a full HTML landing page with:
+Return only a complete, valid HTML page with inline CSS styles. The page should be titled "${pageTitle}" and must follow these rules:
 
-- A colorful hero section with a heading and a short paragraph
-- A section containing 10 creative and random <a href="..."> links with href attributes pointing to random pages like href="/pizza-slut etc
-- At least 2 more sections: one describing imaginary features, and one a fake testimonial
-- Simple brilliant and crazy CSS for unreal styling and alot of custom animations and gradients.
-- No JavaScript
-- Return ONLY the raw HTML as a string, no explanation or code block formatting
-      `;
+1. Generate a colorful and elegant layout tailored to the page purpose. Generate multiple sections as needed. Structure everything cleanly with smooth flow and vibrant visuals.
+2. Use open images from https://picsum.photos or similar services.
+3. All links must be clickable and open in new tabs (use target="_blank") and include something in the href of every link like /${pageTitle}/"something related".
+4. Include at least 5 interactive elements (e.g., button with JS alert, or collapsible section).
+5. Ensure the layout looks good on both mobile and desktop (use responsive design with flex/grid).
+6. Use modern, eye-catching fonts (via inline style or Google Fonts).
+7. Do NOT include explanations—only raw, standalone HTML.
+8. Ensure everything works independently in a browser—no external CSS or JS files except images/fonts.
+9. Include minimal, inline JavaScript to add interactivity (e.g., toggle buttons, alert on click, scroll effects, etc.), no script tags.
+10.Simple brilliant and crazy CSS for unreal styling and alot of custom animations and gradients.
+
+
+
+`;
+
 
     if (htmlPrompt) {
       const fetchOutput = async () => {
