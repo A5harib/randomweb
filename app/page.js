@@ -7,17 +7,17 @@ export default function PlaygroundPage() {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const params = useParams();
-  //pexels cFLNu1JfV65hEA9FSHCDRjHQsNwu8vutAXzP7gSqb2gM4qM0yN2rcaip
-  // This function calls the Gemini API to get an HTML response.
-  const getGeminiResponse = async (prompt) => {
-    const API_KEY = "AIzaSyDewKJJHkgK01OJt5XOLd9zwac9D63tAkU";
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
-    // The key change is specifying the responseMimeType in generationConfig.
+  const getGroqResponse = async (prompt) => {
+    const API_KEY = "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"; // Replace with your actual Groq API key
+    const URL = "https://api.groq.com/openai/v1/chat/completions";
+
     const payload = {
-      contents: [
+      model: "moonshotai/kimi-k2-instruct", // or llama3-70b-8192 if preferred
+      messages: [
         {
-          parts: [{ text: prompt }],
+          role: "user",
+          content: prompt,
         },
       ],
     };
@@ -26,24 +26,19 @@ export default function PlaygroundPage() {
       try {
         const response = await fetch(URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${API_KEY}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-          // Log the full response and its body for debugging a 4xx or 5xx error
-          console.error("API Error Response:", response);
           const errorBody = await response.json();
-          console.error("API Error Body:", errorBody);
-
-          if (response.status === 429 && retries < 5) {
-            const delay = Math.pow(2, retries) * 1000;
-            await new Promise((res) => setTimeout(res, delay));
-            return fetchWithBackoff(retries + 1);
-          }
-          // Throw a more informative error message
           throw new Error(
-            `API request failed with status: ${response.status}. Details: ${errorBody.error.message}`
+            `Groq API failed with status ${response.status}: ${
+              errorBody.error?.message || "Unknown error"
+            }`
           );
         }
 
@@ -59,22 +54,19 @@ export default function PlaygroundPage() {
     };
 
     const response = await fetchWithBackoff();
-    return response.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+    return response.choices?.[0]?.message?.content || "No response";
   };
 
   useEffect(() => {
     const pageTitle = params.slug ? params.slug.join(" ") : "Home";
-    // const htmlPrompt = `Return only the minimal HTML content meant to go inside <body> for a page titled "${pageTitle}".
-    //     Use inline Tailwind CSS classes with "className" instead of "class".
-    //     Don't Include functional JavaScript, and do not include <html>, <head>, or <body> tags.
-    //     Return only the HTML, no explanations.`;
+
     const htmlPrompt = `
-Create a full HTML landing page with:
+Create a full HTML minimalistic retro landing page with:
 
 - A colorful hero section with a heading and a short paragraph
 - A section containing 10 creative and random <a href="..."> links with href attributes pointing to random pages like href="/pizza-slut etc
 - At least 2 more sections: one describing imaginary features, and one a fake testimonial
-- Simple brilliant and crazy CSS for unreal styling and alot of custom animations and gradients.
+- Simple brilliant and minimalistic CSS for styling and custom animations and gradients.
 - No JavaScript
 - Return ONLY the raw HTML as a string, no explanation or code block formatting
       `;
@@ -83,19 +75,16 @@ Create a full HTML landing page with:
       const fetchOutput = async () => {
         setLoading(true);
         try {
-          const result = await getGeminiResponse(htmlPrompt);
-
-          // Clean the code block
+          const result = await getGroqResponse(htmlPrompt);
           const cleaned = result
             .replace(/^```html\s*/, "")
             .replace(/```$/, "")
-            .replace(/<script.*?tailwindcss\.com.*?<\/script>/, "") // 💥 Remove tailwind CDN script
-
+            .replace(/<think[\s\S]*?<\/think>/gi, "") // removes <think>...</think>
             .trim();
 
           setOutput(cleaned);
         } catch (error) {
-          console.error("Failed to fetch response:", error);
+          console.error("Groq fetch failed:", error);
           setOutput(`Error: ${error.message}`);
         } finally {
           setLoading(false);
@@ -108,29 +97,17 @@ Create a full HTML landing page with:
   }, [params]);
 
   return (
-    <div className="min-h-screen   ">
-      {/* <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
-        <h2 className="text-xl font-semibold mb-2">
-          Current Prompt from Path:
-        </h2>
-        <p className="p-3 bg-gray-700 rounded text-gray-200 break-words">
-          {params.slug
-            ? params.slug.join("/")
-            : "No prompt provided. Please use a path like '/your/query/here'."}
-        </p>
-      </div> */}
-
+    <div className="min-h-screen">
       {loading && (
-        <div className="flex justify-center items-center mt-6">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="ml-4 text-blue-300">Generating...</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 animate-gradientMove">
+          <div className="text-neutral-800 text-5xl font-semibold animate-pulse">
+            Loading...
+          </div>
         </div>
       )}
 
       {output && !loading && (
-        <div className="">
-          <div dangerouslySetInnerHTML={{ __html: output }} />
-        </div>
+        <div dangerouslySetInnerHTML={{ __html: output }} />
       )}
     </div>
   );
