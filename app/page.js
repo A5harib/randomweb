@@ -9,11 +9,11 @@ export default function PlaygroundPage() {
   const params = useParams();
 
   const getGroqResponse = async (prompt) => {
-    const API_KEY = "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"; // Replace with your actual Groq API key
-    const URL = "https://api.groq.com/openai/v1/chat/completions";
+    const API_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+    const URL = process.env.NEXT_PUBLIC_GROQ_API_URL;
 
     const payload = {
-      model: "moonshotai/kimi-k2-instruct", // or llama3-70b-8192 if preferred
+      model: process.env.NEXT_PUBLIC_GROQ_MODEL, // or llama3-70b-8192 if preferred
       messages: [
         {
           role: "user",
@@ -38,7 +38,7 @@ export default function PlaygroundPage() {
           throw new Error(
             `Groq API failed with status ${response.status}: ${
               errorBody.error?.message || "Unknown error"
-            }`
+            }`,
           );
         }
 
@@ -61,14 +61,36 @@ export default function PlaygroundPage() {
     const pageTitle = params.slug ? params.slug.join(" ") : "Home";
 
     const htmlPrompt = `
-Create a full HTML minimalistic retro landing page with:
+Return only a complete, valid HTML page with inline CSS. 
+INSTRUCTIONAL PRIORITY: You MUST generate high-quality, realistic professional copy. No "Lorem Ipsum." Every heading and paragraph must feel like a real production-grade SaaS landing page for a cutting-edge tech startup.
 
-- A colorful hero section with a heading and a short paragraph
-- A section containing 10 creative and random <a href="..."> links with href attributes pointing to random pages like href="/pizza-slut etc
-- At least 2 more sections: one describing imaginary features, and one a fake testimonial
-- Simple brilliant and minimalistic CSS for styling and custom animations and gradients.
-- No JavaScript
-- Return ONLY the raw HTML as a string, no explanation or code block formatting
+### THE DESIGN SEED (Select ONE randomly and execute):
+1. THE ENTERPRISE (Swiss/Minimal): High whitespace, #000 text, 900-weight "Inter" or "Lexend" fonts. Uses a 12-column grid. Borders are 1px #eee.
+2. THE DISRUPTOR (Hard Brutalist): #000 4px borders, hard 8px shadows (box-shadow: 8px 8px 0px #000). Use "Cyber Lime" or "Safety Orange" for buttons.
+3. THE STUDIO (Magazine Luxury): Serif headers ('Fraunces' or 'Playfair Display'), asymmetrical layouts, image masks, and vertical running text.
+4. THE NEON LAB (Y2K/Cyber): Dark mode (#050505), 1px dotted borders, CSS-drawn "grain" overlay, and monospace 'Space Mono' typography.
+
+### MANDATORY CONTENT COMPONENTS:
+- STICKY NAV: A blur-glass (backdrop-filter) navigation bar with a "Get Started" button.
+- HERO SECTION: A "CSS-Built Dashboard Mockup" with a realistic UI (sidebar, charts, data-grids).
+- SOCIAL PROOF: A "Trusted by" section with 5 diverse abstract logos and real company names.
+- FEATURE GRID: Use 'display: grid' with 'grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))'. Each feature must have a unique, descriptive name and a 2-sentence explanation of its technical value.
+- PRICING TABLE: A 3-tier card layout (Startup, Pro, Enterprise) with specific feature lists and monthly prices.
+- FOOTER: A 4-column footer with realistic links (Resources, Company, Legal, Social).
+- 10 LINKS: Exactly 10 creative <a href="/..."> links with unique slugs related to the SaaS niche.
+
+### THE "ANTI-SLOP" ENGINE:
+- NO SOFT GRADIENTS: Use solid colors or 'conic-gradient' for sharp, technical-looking transitions.
+- NO CENTER-CENTER DEFAULTS: Elements must use diverse alignment (text-align: left, right, or justified). 
+- TYPOGRAPHY HIERARCHY: Use 'clamp()' for responsive font sizes. Headers must be 4x larger than body text.
+- NOISE & TEXTURE: Use an SVG <filter> for a grainy texture overlay on the entire body.
+- NO JAVASCRIPT: Use the 'checkbox hack' (<input type="checkbox"> + <label>) for a mobile menu or a light/dark mode toggle.
+
+### TECHNICAL SPECS:
+- Use Google Fonts via @import.
+- Use CSS Variables (--primary, --bg, --accent) for all colors.
+- Images: Use https://picsum.photos/seed/{RANDOM_SEED}/1200/800 for varied, high-quality visuals. Ensure each image has a different seed.
+- Output: Raw HTML string only. No code blocks. No markdown. No chatter.
       `;
 
     if (htmlPrompt) {

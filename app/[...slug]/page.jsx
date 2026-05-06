@@ -9,11 +9,11 @@ export default function PlaygroundPage() {
   const params = useParams();
 
   const getGroqResponse = async (prompt) => {
-    const API_KEY = "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"; // Replace with your actual Groq API key
-    const URL = "https://api.groq.com/openai/v1/chat/completions";
+    const API_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+    const URL = process.env.NEXT_PUBLIC_GROQ_API_URL;
 
     const payload = {
-      model: "moonshotai/kimi-k2-instruct", // or llama3-70b-8192 if preferred
+      model: process.env.NEXT_PUBLIC_GROQ_MODEL, // or llama3-70b-8192 if preferred
       messages: [
         {
           role: "user",
@@ -38,7 +38,7 @@ export default function PlaygroundPage() {
           throw new Error(
             `Groq API failed with status ${response.status}: ${
               errorBody.error?.message || "Unknown error"
-            }`
+            }`,
           );
         }
 
@@ -60,22 +60,36 @@ export default function PlaygroundPage() {
   useEffect(() => {
     const pageTitle = params.slug ? params.slug.join(" ") : "Home";
 
-    const htmlPrompt = `
-Return only a complete, valid HTML page with inline CSS styles. The page should be titled "${pageTitle}" and must follow these rules:
+    const htmlPrompt = `Return only a complete, valid HTML page with inline CSS. 
+TITLE: "${pageTitle}"
 
-1. Generate a colorful and elegant layout tailored to the page purpose. Generate multiple sections as needed based on "${pageTitle}". Structure everything cleanly with smooth flow and vibrant visuals.
-2. Use open images from https://picsum.photos or similar services.
-3. All links must be clickable and open in new tabs (use target="_blank") and include something in the href of every link like /${pageTitle}/"something related".
-4. Only use inline JS. Use onclick, oninput, etc. No external scripts. Only use features that work with dangerouslySetInnerHTML. Avoid script tags. Use clever HTML/CSS for interaction (e.g., <details>, <input type="checkbox">, etc.). Make it look like a functional UI prototype.
-5. Ensure the layout looks good on both mobile and desktop (use responsive design with flex/grid).
-6. Use modern, eye-catching fonts (via inline style or Google Fonts).
-7. Do NOT include explanations—only raw, standalone HTML.
-8. Ensure everything works independently in a browser—no external CSS or JS files except images/fonts.
-9. Include minimal, inline JavaScript to add interactivity (e.g., toggle buttons, alert on click, scroll effects, etc.), no script tags.
-10. Brilliant and crazy CSS for unreal styling and alot of custom animations and gradients.
-11.it should be a complete page with long multiple sections
-12. have paragraphs, headings, lists, and images
+INSTRUCTIONAL PRIORITY: You MUST generate high-quality, realistic professional copy specifically tailored to the topic "${pageTitle}". No "Lorem Ipsum." Every heading and paragraph must feel like it was written by a subject matter expert.
 
+### STEP 1: THE STYLE DICE ROLL
+Randomly select ONE specific design logic and ignore the others:
+1. SWISS TYPEFACE: White/Black/Red. Massive "Display" fonts. 12-column grid. No borders.
+2. HARD-BRUTALISM: #000 4px borders. High-saturation "Cyber-Lime" or "Safety Orange." 0px border-radius.
+3. MAGAZINE: Serif fonts (e.g., 'Playfair Display'). Asymmetrical image overlaps. Vertical text elements.
+4. Y2K/CHAOS: Grainy textures, marquee tags, 1px dotted borders, system-UI icons.
+5. NEO-MINIMALISM: Charcoal #111 vs Bone #F5F5F7. Deep shadows.
+
+### STEP 2: MANDATORY CONTENT COMPONENTS
+- A "Gravity-Defying" Hero: Use 'clip-path' or 'transform: skewY' for a non-rectilinear header.
+- The Matrix-Link Section: Exactly 10 creative <a> links related to "${pageTitle}". Use: href="/${pageTitle}/[contextual-slug]".
+- Deep Content Sections: At least 3 detailed sections with specific information, data points, or "expert advice" about "${pageTitle}".
+- Interactive Prototype: Use <details> for menus and <input type="checkbox"> hacks for "dark mode" or "modals."
+- Inline Logic: Use 'onclick' or 'onmouseenter' for direct DOM manipulation. NO <script> TAGS.
+
+### STEP 3: CSS ARCHITECTURE (ANTI-SLOP DECREE)
+- NO SOFT GRADIENTS: Use 'repeating-conic-gradient', 'steps()' in animations, or solid color blocks.
+- GRID SABOTAGE: Avoid 'justify-content: center'. Use 'grid-template-columns: repeat(12, 1fr)' and force elements to span random ranges (e.g., 'grid-column: 2 / 8').
+- NOISE & TEXTURE: Apply a CSS 'contrast(150%) brightness(1000%)' filter on a low-opacity grain overlay.
+- TYPOGRAPHY: Pair a Google Font with a weight of 900 (Display) with a Monospace font for body text.
+
+### STEP 4: TECHNICAL CONSTRAINTS
+- Responsive: Use 'clamp()' for font sizes and 'minmax' for grid columns.
+- Images: Use https://picsum.photos/seed/{RANDOM_SEED}/800/600 for topic-relevant visuals. Ensure each image has a unique seed.
+- Output: Raw HTML string only. No markdown code blocks. No explanations.
 `;
 
     if (htmlPrompt) {
@@ -90,6 +104,7 @@ Return only a complete, valid HTML page with inline CSS styles. The page should 
             .trim();
 
           setOutput(cleaned);
+          console.log(cleaned);
         } catch (error) {
           console.error("Groq fetch failed:", error);
           setOutput(`Error: ${error.message}`);

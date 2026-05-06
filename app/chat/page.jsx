@@ -14,14 +14,14 @@ export default function Chat() {
 
     try {
       const res = await axios.post(
-        "https://api.groq.com/openai/v1/chat/completions",
+        process.env.NEXT_PUBLIC_GROQ_API_URL,
         {
-          model: "llama-3.3-70b-versatile", // or "llama3-70b-8192"
+          model: process.env.NEXT_PUBLIC_GROQ_MODEL, // or "llama3-70b-8192"
           messages: newMessages,
         },
         {
           headers: {
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`,
             "Content-Type": "application/json",
           },
         }

@@ -10,8 +10,8 @@ export default function PlaygroundPage() {
     conversationHistory = [],
     userMessage = ""
   ) => {
-    const API_KEY = "AIzaSyCHA9-xhPVN9EkuOwV2li-Z8wLEC96DkVc";
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const URL = `${process.env.NEXT_PUBLIC_GEMINI_BASE_URL}/${process.env.NEXT_PUBLIC_GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
     const structuredHistory = conversationHistory.map((msg) => ({
       role: msg.type === "user" ? "user" : "model",
